@@ -1,0 +1,47 @@
+[
+    <% N_HEADS = 1 %>
+
+    % for cluster in range(0,16):
+        // Compute cores
+        % for j in range(0, 8):
+        {
+            "thread": "${f'hart_{cluster * 9 + j + 1}'}",
+            "roi": [
+                % for i in range(0, N_HEADS):
+                    {"idx": ${23 * i + 1}, "label": "gemm_QK"},
+                    {"idx": ${23 * i + 2}, "label": "inner_rowmax"},
+                    {"idx": ${23 * i + 5}, "label": "m:max_odd_even"},
+                    {"idx": ${23 * i + 7}, "label": "m:max_2_0"},
+                    {"idx": ${23 * i + 9}, "label": "P_fa&inner_sum"},
+                    {"idx": ${23 * i + 12}, "label": "l:sum_odd_even"},
+                    {"idx": ${23 * i + 14}, "label": "l:sum_2_0"},
+                    {"idx": ${23 * i + 16}, "label": "gemm_PV"},
+                    {"idx": ${23 * i + 19}, "label": "O:odd_even"},
+                    {"idx": ${23 * i + 21}, "label": "O:2_0&/l"},
+                % endfor
+                {"idx": ${23 * N_HEADS + 2}, "label": "fused_concat_linear"},
+            ]
+        },
+        % endfor
+
+        // DMA core
+        {
+            "thread": "${f'hart_{cluster * 9 + 8 + 1}'}",
+            "roi": [
+                % for i in range(0, N_HEADS):
+                    {"idx": ${20 * i + 1}, "label": "QKV_in"},
+                    {"idx": ${20 * i + 3}, "label": "m:odd->even"},
+                    {"idx": ${20 * i + 5}, "label": "m:2->0"},
+                    {"idx": ${20 * i + 7}, "label": "m:row_broadcast"},
+                    {"idx": ${20 * i + 9}, "label": "l:odd->even"},
+                    {"idx": ${20 * i + 11}, "label": "l:2->0"},
+                    {"idx": ${20 * i + 13}, "label": "l:row_broadcast"},
+                    {"idx": ${20 * i + 15}, "label": "O:odd->even"},
+                    {"idx": ${20 * i + 17}, "label": "O:2->0"},
+                    {"idx": ${20 * i + 19}, "label": "O_out"},
+                % endfor
+                {"idx": ${20 * N_HEADS + 2}, "label": "fused_concat_linear"},
+            ]
+        },
+    % endfor
+]

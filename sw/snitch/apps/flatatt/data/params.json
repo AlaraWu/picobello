@@ -1,0 +1,14 @@
+// Copyright 2025 ETH Zurich and University of Bologna.
+// Solderpad Hardware License, Version 0.51, see LICENSE for details.
+// SPDX-License-Identifier: SHL-0.51
+
+{
+    num_heads: 1,
+	L: 32,
+	S: 32,
+    d: 32,
+    B_r: 8,
+    B_c: 8,
+    dtype: "FP32",
+    baseline: true
+}
